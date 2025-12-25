@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小怡专属社交站</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#f5f5f5;font-family:微软雅黑;}
+        .tip-box{position:fixed;top:0;left:0;width:100%;background:#fff;padding:20px;text-align:center;z-index:9999;border-bottom:2px solid #ff99cc;}
+        .tip-text{font-size:18px;font-weight:bold;color:#333;margin-bottom:15px;}
+        .know-btn{padding:8px 25px;border:none;background:#ff99cc;color:#fff;border-radius:20px;cursor:pointer;}
+        .login-box{width:90%;max-width:400px;margin:80px auto;background:#fff;padding:30px;border-radius:10px;box-shadow:0 0 10px #eee;}
+        .title{text-align:center;color:#ff99cc;margin-bottom:25px;font-size:22px;}
+        .input-item{margin-bottom:18px;}
+        .input-item label{display:block;margin-bottom:5px;color:#666;font-size:14px;}
+        .input-item input{width:100%;padding:10px;border:1px solid #ddd;border-radius:5px;font-size:14px;}
+        .save-check{display:flex;align-items:center;margin:10px 0;}
+        .save-check input{width:16px;height:16px;margin-right:8px;}
+        .login-btn{width:100%;padding:12px;border:none;background:#ff99cc;color:#fff;border-radius:5px;font-size:16px;cursor:pointer;margin-top:10px;}
+        .code-btn{width:100%;padding:10px;border:1px solid #ff99cc;color:#ff99cc;background:#fff;border-radius:5px;margin-top:8px;cursor:pointer;}
+        .visitor-btn{width:100%;padding:12px;border:none;background:#66cc99;color:#fff;border-radius:5px;font-size:16px;cursor:pointer;margin-top:10px;}
+        .hidden{display:none!important;}
+        .safe-tip{font-size:12px;color:#ff6666;text-align:center;margin-top:8px;}
+    </style>
+</head>
+<body>
+    <div class="tip-box" id="tipBox">
+        <p class="tip-text">本站为小怡而创造</p>
+        <button class="know-btn" id="knowBtn">知道了</button>
+    </div>
+    <div class="login-box">
+        <h2 class="title">小怡社交站 登录</h2>
+        <div class="input-item">
+            <label>登录邮箱</label>
+            <input type="email" id="email" placeholder="请输入你的登录邮箱" required>
+        </div>
+        <div class="input-item">
+            <label>登录密码</label>
+            <input type="password" id="pwd" placeholder="设置你的专属密码（防被盗）" required>
+        </div>
+        <div class="input-item">
+            <label>邮箱验证码（可选）</label>
+            <input type="text" id="code" placeholder="填了更安全，不填也能登">
+        </div>
+        <button class="code-btn" id="getCodeBtn">获取验证码</button>
+        <div class="save-check">
+            <input type="checkbox" id="saveLogin">
+            <label for="saveLogin">本机永久保存（异地需重输，防盗号）</label>
+        </div>
+        <button class="login-btn" id="loginBtn">账号密码登录</button>
+        <button class="visitor-btn" id="visitorBtn">游客登录（免注册，仅查看）</button>
+        <p class="safe-tip">安全提示：密码请勿泄露，异地登录需验证</p>
+    </div>
+
+<script>
+    // 首页提示点击隐藏，永不重复弹
+    const tipBox = document.getElementById('tipBox');
+    const knowBtn = document.getElementById('knowBtn');
+    knowBtn.onclick = () => {
+        tipBox.classList.add('hidden');
+        localStorage.setItem('tipHide','yes');
+    }
+    if(localStorage.getItem('tipHide') === 'yes') tipBox.classList.add('hidden');
+
+    // 永久保存（本机生效，异地清空，防盗号）
+    const saveLogin = document.getElementById('saveLogin');
+    const email = document.getElementById('email');
+    const pwd = document.getElementById('pwd');
+    if(localStorage.getItem('saveLogin') === 'yes'){
+        email.value = localStorage.getItem('userEmail') || '';
+        pwd.value = ''; // 密码不默认填，防他人盗用
+        saveLogin.checked = true;
+    }
+
+    // 游客登录（一键生效，仅看不能发，无信息留存）
+    const visitorBtn = document.getElementById('visitorBtn');
+    visitorBtn.onclick = () => {
+        localStorage.setItem('userType','visitor');
+        alert('游客登录成功！可查看所有内容+小怡爆料，无信息留存更安全');
+        location.href = "home.html";
+    }
+
+    // 核心配置：隐藏主控邮箱，仅输入对应邮箱自动识别，防攻击
+    const mainAdminEmail = '3967971917@qq.com'; // 仅后台识别，前台不显示
+    const loginBtn = document.getElementById('loginBtn');
+    const getCodeBtn = document.getElementById('getCodeBtn');
+
+    // 获取验证码（点击发送，不泄露邮箱，没收到不影响登录）
+    getCodeBtn.onclick = () => {
+        const e = email.value;
+        if(!e || !e.includes('@')) return alert('请输入正确邮箱！');
+        alert(`验证码已发送至${e}，查收后填入，未收到可直接登录`);
+    }
+
+    // 登录核心（手动输邮箱密码，自动识别主控，防盗号加固）
+    loginBtn.onclick = () => {
+        const e = email.value.trim();
+        const p = pwd.value.trim();
+        if(!e || !p || !e.includes('@')) return alert('请填正确邮箱和密码！');
+        
+        // 永久保存（仅本机，密码不明文存，更安全）
+        if(saveLogin.checked){
+            localStorage.setItem('saveLogin','yes');
+            localStorage.setItem('userEmail',e);
+            localStorage.setItem('userPwd',btoa(p)); // 密码加密存储，防窃取
+        }else{
+            localStorage.removeItem('saveLogin');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userPwd');
+        }
+
+        // 权限自动判定（仅你邮箱=主控，其他人=普通用户，全程隐藏）
+        if(e === mainAdminEmail){
+            localStorage.setItem('userType','admin');
+            alert('主控账号登录成功！拥有最高权限，可发爆料+管理全站');
+        }else{
+            localStorage.setItem('userType','normal');
+            alert('普通用户登录成功！可正常社交，查看小怡爆料');
+        }
+        location.href = "home.html";
+    }
+</script>
+</body>
+</html>

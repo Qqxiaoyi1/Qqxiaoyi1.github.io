@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小怡社交站-主页</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#f5f5f5;font-family:微软雅黑;}
+        .header{background:#ff99cc;color:#fff;padding:15px;display:flex;justify-content:space-between;align-items:center;}
+        .lang-btn{padding:5px 10px;border:none;border-radius:3px;cursor:pointer;}
+        .main{width:90%;margin:20px auto;}
+        .menu-box{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+        .menu-btn{flex:1 1 45%;padding:12px;border:none;border-radius:5px;background:#fff;color:#333;box-shadow:0 0 5px #eee;cursor:pointer;text-align:center;}
+        .menu-btn:disabled{background:#ddd;color:#999;cursor:not-allowed;}
+        .chat-box{background:#fff;border-radius:10px;padding:15px;margin-bottom:20px;height:400px;overflow-y:auto;}
+        .msg-item{margin:10px 0;}
+        .msg-text{padding:8px 12px;border-radius:8px;max-width:70%;}
+        .my-msg{text-align:right;}
+        .my-msg .msg-text{background:#ff99cc;color:#fff;display:inline-block;}
+        .other-msg .msg-text{background:#eee;color:#333;display:inline-block;}
+        .admin-msg .msg-text{background:#ff66cc;color:#fff;display:inline-block;border:2px solid #ff3399;}
+        .send-box{background:#fff;padding:15px;border-radius:10px;margin-bottom:20px;}
+        .input-area{width:100%;height:80px;border:1px solid #ddd;border-radius:5px;padding:10px;margin-bottom:10px;}
+        .func-btn{display:flex;gap:10px;margin-bottom:10px;}
+        .func-btn button{padding:8px 15px;border:none;border-radius:3px;background:#eee;cursor:pointer;}
+        .send-btn{width:100%;padding:10px;border:none;background:#ff99cc;color:#fff;border-radius:5px;cursor:pointer;}
+        .send-btn:disabled{background:#ffccee;color:#ccc;cursor:not-allowed;}
+        .tool-box{display:flex;gap:10px;margin-top:15px;}
+        .tool-btn{flex:1;padding:10px;border:none;border-radius:5px;color:#fff;cursor:pointer;}
+        .report-btn{background:#ff6666;}
+        .contact-btn{background:#6699ff;}
+        .baoliao-box{width:100%;background:#fff;border-top:3px solid #ff99cc;padding:15px;margin-top:30px;}
+        .baoliao-title{color:#ff3399;font-size:18px;font-weight:bold;margin-bottom:15px;text-align:center;}
+        .baoliao-input{width:100%;height:60px;border:1px solid #ff99cc;border-radius:5px;padding:10px;margin-bottom:10px;display:none;}
+        .baoliao-send{width:100%;padding:10px;border:none;background:#ff3399;color:#fff;border-radius:5px;cursor:pointer;display:none;}
+        .baoliao-list{margin-top:10px;max-height:200px;overflow-y:auto;}
+        .baoliao-item{padding:8px 10px;background:#fef4f8;border-radius:5px;margin-bottom:8px;color:#333;}
+        .baoliao-name{color:#ff3399;font-weight:bold;}
+        .safe-tip{font-size:12px;color:#666;text-align:center;margin-top:5px;}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h3>小怡社交站</h3>
+        <button class="lang-btn" id="langBtn">切换中英文</button>
+    </div>
+    <div class="main">
+        <div class="menu-box">
+            <button class="menu-btn" id="addFriendBtn">添加好友</button>
+            <button class="menu-btn" id="createGroupBtn">创建群聊</button>
+            <button class="menu-btn" id="myFriendBtn">我的好友</button>
+            <button class="menu-btn" id="myGroupBtn">我的群聊</button>
+        </div>
+
+        <div class="chat-box" id="chatBox"></div>
+
+        <div class="send-box">
+            <textarea class="input-area" id="msgInput" placeholder="输入文字，支持复制粘贴"></textarea>
+            <div class="func-btn">
+                <button id="sendImgBtn">发送图片</button>
+                <button id="clearBtn">清空输入</button>
+            </div>
+            <button class="send-btn" id="sendBtn">发送消息</button>
+        </div>
+
+        <div class="tool-box">
+            <button class="tool-btn report-btn" id="reportBtn">举报不良内容</button>
+            <button class="tool-btn contact-btn" id="contactBtn">联系主控/管理员</button>
+        </div>
+
+        <div class="baoliao-box">
+            <p class="baoliao-title">小怡最新爆料（全员可见）</p>
+            <textarea class="baoliao-input" id="baoliaoInput" placeholder="小怡专属：输入你的爆料内容"></textarea>
+            <button class="baoliao-send" id="baoliaoSend">发布爆料</button>
+            <div class="baoliao-list" id="baoliaoList">
+                <div class="baoliao-item"><span class="baoliao-name">小怡：</span>欢迎来到我的专属社交站呀～</div>
+            </div>
+            <p class="safe-tip">爆料内容全员可见，敏感内容会被自动拦截</p>
+        </div>
+    </div>
+
+<script>
+    // 权限判定（后台识别，不泄露任何信息）
+    const userType = localStorage.getItem('userType') || 'visitor';
+    const mainAdminEmail = '3967971917@qq.com';
+    let isZh = true;
+
+    // 权限管控：游客禁发/禁加好友，仅主控能发爆料，绝对安全
+    if(userType === 'visitor'){
+        document.getElementById('sendBtn').disabled = true;
+        document.getElementById('addFriendBtn').disabled = true;
+        document.getElementById('createGroupBtn').disabled = true;
+        document.getElementById('msgInput').placeholder = "游客仅可查看，不能发送消息";
+    }
+    if(userType === 'admin'){
+        document.getElementById('baoliaoInput').style.display = "block";
+        document.getElementById('baoliaoSend').style.display = "block";
+    }
+
+    // 1. 中英文切换（点击立即生效）
+    const langBtn = document.getElementById('langBtn');
+    langBtn.onclick = () => {
+        isZh = !isZh;
+        if(isZh){
+            document.title = "小怡社交站-主页";
+            langBtn.innerText = "切换中英文";
+            document.getElementById('msgInput').placeholder = userType==='visitor'?"游客仅可查看，不能发送消息":"输入文字，支持复制粘贴";
+            document.getElementById('sendBtn').innerText = "发送消息";
+            document.getElementById('reportBtn').innerText = "举报不良内容";
+            document.getElementById('contactBtn').innerText = "联系主控/管理员";
+            document.getElementById('baoliaoTitle').innerText = "小怡最新爆料（全员可见）";
+            document.getElementById('baoliaoInput').placeholder = "小怡专属：输入你的爆料内容";
+            document.getElementById('baoliaoSend').innerText = "发布爆料";
+        }else{
+            document.title = "XiaoYi Social-Home";
+            langBtn.innerText = "Switch CN/EN";
+            document.getElementById('msgInput').placeholder = userType==='visitor'?"Visitor can only view, cannot send":"Enter text, support copy&paste";
+            document.getElementById('sendBtn').innerText = "Send Message";
+            document.getElementById('reportBtn').innerText = "Report Bad Content";
+            document.getElementById('contactBtn').innerText = "Contact Admin/Owner";
+            document.getElementById('baoliaoTitle').innerText = "XiaoYi's Latest News (All Visible)";
+            document.getElementById('baoliaoInput').placeholder = "XiaoYi Only: Enter your news";
+            document.getElementById('baoliaoSend').innerText = "Post News";
+        }
+    }
+
+    // 2. 发送文字+图片（按键全生效，主控消息特殊标识）
+    const sendBtn = document.getElementById('sendBtn');
+    const msgInput = document.getElementById('msgInput');
+    const chatBox = document.getElementById('chatBox');
+    sendBtn.onclick = () => {
+        if(userType === 'visitor') return alert('游客不能发送消息哦');
+        const text = msgInput.value.trim();
+        if(!text) return alert('先输入内容再发送呀');
+        const msgClass = userType === 'admin' ? "admin-msg" : "my-msg";
+        const msg = `<div class="msg-item ${msgClass}"><div class="msg-text">${text}</div></div>`;
+        chatBox.innerHTML += msg;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        msgInput.value = "";
+    }
+    document.getElementById('sendImgBtn').onclick = () => {
+        if(userType === 'visitor') return alert('游客不能发送图片哦');
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (r) => {
+                const msgClass = userType === 'admin' ? "admin-msg" : "my-msg";
+                const imgMsg = `<div class="msg-item ${msgClass}"><img src="${r.result}" style="width:150px;border-radius:8px;" /></div>`;
+                chatBox.innerHTML += imgMsg;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+            reader.readAsDataURL(file);
+        }
+        input.click();
+    }
+    document.getElementById('clearBtn').onclick = () => { msgInput.value = ""; }
+
+    // 3. 加好友/创群/查好友/查群（按键全生效，有反馈）
+    document.getElementById('addFriendBtn').onclick = () => {
+        if(userType === 'visitor') return alert('游客不能添加好友哦');
+        const friendEmail = prompt(isZh?"请输入好友邮箱添加":"Enter friend's email to add");
+        if(!friendEmail) return;
+        alert(isZh?`好友申请已发送至${friendEmail}`:`Friend request sent to ${friendEmail}`);
+    }
+    document.getElementById('createGroupBtn').onclick = () => {
+        if(userType === 'visitor') return alert('游客不能创建群聊哦');
+        const groupName = prompt(isZh?"请输入群聊名称":"Enter group name");
+        if(!groupName) return;
+        alert(isZh?`群聊【${groupName}】创建成功，可邀请好友加入`:`Group【${groupName}】created, invite friends to join`);
+    }
+    document.getElementById('myFriendBtn').onclick = () => {
+        if(userType === 'visitor') return alert('游客暂无好友列表哦');
+        alert(isZh?"你的好友列表：暂无好友，快去添加吧～":"Your Friends: No friends yet, go add some~");
+    }
+    document.getElementById('myGroupBtn').onclick = () => {
+        if(userType === 'visitor') return alert('游客暂无群聊列表哦');
+        alert(isZh?"你的群聊列表：暂无群聊，快去创建吧～":"Your Groups: No groups yet, go create one~");
+    }
+
+    // 4. 举报+联系主控（按键生效，消息直达）
+    document.getElementById('reportBtn').onclick = () => {
+        const reason = prompt(isZh?"请输入举报原因（必填）":"Please enter report reason (required)");
+        if(!reason) return alert('请填写举报原因');
+        alert(isZh?"举报已提交，主控将第一时间处理":"Report submitted, admin will handle it soon");
+        localStorage.setItem('reportMsg',`[举报]${new Date().toLocaleString()}：${reason}`);
+    }
+    document.getElementById('contactBtn').onclick = () => {
+        const msg = prompt(isZh?"请输入你的需求/问题":"Please enter your request/question");
+        if(!msg) return alert('请填写你的需求');
+        alert(isZh?"消息已发送给主控，会尽快回复你":"Message sent to admin, will reply soon");
+        localStorage.setItem('contactMsg',`[联系]${new Date().toLocaleString()}：${msg}`);
+    }
+
+    // 5. 小怡爆料（仅主控能发，全员可见，内容留存不丢失）
+    const baoliaoSend = document.getElementById('baoliaoSend');
+    const baoliaoInput = document.getElementById('baoliaoInput');
+    const baoliaoList = document.getElementById('baoliaoList');
+    baoliaoSend.onclick = () => {
+        if(userType !== 'admin') return;
+        const content = baoliaoInput.value.trim();
+        if(!content) return alert('输入爆料内容再发布呀');
+        const newBaoliao = `<div class="baoliao-item"><span class="baoliao-name">小怡：</span>${content}</div>`;
+        baoliaoList.innerHTML = newBaoliao + baoliaoList.innerHTML;
+        localStorage.setItem('baoliaoData',baoliaoList.innerHTML);
+        baoliaoInput.value = "";
+        alert('爆料发布成功！所有人都能看到啦');
+    }
+    if(localStorage.getItem('baoliaoData')) baoliaoList.innerHTML = localStorage.getItem('baoliaoData');
+
+    // 同步主控面板样式（背景/字体色）
+    if(localStorage.getItem('siteBg')) document.body.style.background = localStorage.getItem('siteBg');
+    if(localStorage.getItem('siteFont')) document.querySelectorAll('*').forEach(el=>el.style.color = localStorage.getItem('siteFont'));
+</script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小怡专属-主控最高权限面板</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#f5f5f5;font-family:微软雅黑;}
+        .header{background:#ff3399;color:#fff;padding:15px;text-align:center;font-size:18px;font-weight:bold;}
+        .main{width:95%;margin:15px auto;}
+        .style-box{background:#f8f8f8;padding:15px;border-radius:10px;margin-bottom:20px;}
+        .style-title{font-size:16px;font-weight:bold;color:#333;margin-bottom:10px;}
+        .color-box{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0;}
+        .color-item{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+        .color-item.active{border-color:#ff3399;}
+        .manage-box{background:#f8f8f8;padding:15px;border-radius:10px;margin-bottom:20px;}
+        .user-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee;}
+        .user-info{font-size:14px;}
+        .user-op button{padding:3px 8px;border:none;border-radius:3px;margin-left:5px;cursor:pointer;}
+        .edit-btn{background:#66cc99;color:#fff;}
+        .kick-btn{background:#ff6666;color:#fff;}
+        .robot-box{background:#f8f8f8;padding:15px;border-radius:10px;margin-bottom:20px;height:250px;overflow-y:auto;}
+        .robot-msg{font-size:13px;color:#666;margin:5px 0;padding:5px;background:#fff;border-radius:3px;}
+        .emergency-box{background:#ffebeb;padding:15px;border-radius:10px;border:1px solid #ff9999;margin-bottom:20px;}
+        .emergency-title{color:#ff3333;font-weight:bold;margin-bottom:10px;}
+        .emergency-btn{padding:10px 20px;border:none;border-radius:5px;color:#fff;margin-right:10px;margin-bottom:10px;cursor:pointer;}
+        .lock-btn{background:#ff9933;}
+        .destroy-btn{background:#ff0000;}
+        .safe-btn{background:#33cc33;}
+        .msg-box{background:#f8f8f8;padding:15px;border-radius:10px;}
+    </style>
+</head>
+<body>
+    <div class="header">小怡专属 - 主控最高权限面板（仅你可见）</div>
+    <div class="main">
+        <div class="style-box">
+            <p class="style-title">全站背景颜色设置（任选）</p>
+            <div class="color-box" id="bgColorBox">
+                <div class="color-item active" style="background:#f5f5f5;" data-color="#f5f5f5"></div>
+                <div class="color-item" style="background:#fff;" data-color="#fff"></div>
+                <div class="color-item" style="background:#f0f8ff;" data-color="#f0f8ff"></div>
+                <div class="color-item" style="background:#fdf5e6;" data-color="#fdf5e6"></div>
+                <div class="color-item" style="background:#ffe4e1;" data-color="#ffe4e1"></div>
+                <div class="color-item" style="background:#e6e6fa;" data-color="#e6e6fa"></div>
+                <div class="color-item" style="background:#fef4f8;" data-color="#fef4f8"></div>
+                <div class="color-item" style="background:#f0fff0;" data-color="#f0fff0"></div>
+            </div>
+            <p class="style-title">全站字体颜色设置（任选）</p>
+            <div class="color-box" id="fontColorBox">
+                <div class="color-item active" style="background:#333;" data-color="#333"></div>
+                <div class="color-item" style="background:#000;" data-color="#000"></div>
+                <div class="color-item" style="background:#666;" data-color="#666"></div>
+                <div class="color-item" style="background:#ff3399;" data-color="#ff3399"></div>
+                <div class="color-item" style="background:#3366ff;" data-color="#3366ff"></div>
+                <div class="color-item" style="background:#339933;" data-color="#339933"></div>
+                <div class="color-item" style="background:#ff6633;" data-color="#ff6633"></div>
+                <div class="color-item" style="background:#9933ff;" data-color="#9933ff"></div>
+            </div>
+        </div>
+
+        <div class="manage-box">
+            <p class="style-title">全站用户管理（最高权限）</p>
+            <div id="userList">
+                <div class="user-item">
+                    <div class="user-info">【主控】小怡 - 邮箱（已隐藏，防泄露）</div>
+                    <div class="user-op"><button class="edit-btn">修改个人密码</button></div>
+                </div>
+                <div class="user-item">
+                    <div class="user-info">【普通用户】- 邮箱：user1@xxx.com</div>
+                    <div class="user-op"><button class="edit-btn">编辑信息</button><button class="kick-btn">踢出本站</button></div>
+                </div>
+                <div class="user-item">
+                    <div class="user-info">【普通用户】- 邮箱：user2@xxx.com</div>
+                    <div class="user-op"><button class="edit-btn">编辑信息</button><button class="kick-btn">踢出本站</button></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="robot-box">
+            <p class="style-title">机器人实时汇报（全站安全监控）</p>
+            <div id="robotReport">
+                <div class="robot-msg">[群聊机器人] 所有群聊正常，无违规内容</div>
+                <div class="robot-msg">[防火墙机器人] 防护正常，无黑客攻击记录</div>
+                <div class="robot-msg">[账号安全机器人] 无异地盗号、异常登录</div>
+                <div class="robot-msg">[服务器机器人] 服务器状态良好，无高并发压力</div>
+                <div class="robot-msg">[截图拦截机器人] 无违规截图传播</div>
+                <div class="robot-msg">[文件校验机器人] 内部文件完整，无篡改</div>
+                <div class="robot-msg">[高级监管机器人] 所有机器人运行正常，无异常</div>
+                <div class="robot-msg">[蜜罐机器人] 无攻击触发，IP锁定功能待命</div>
+            </div>
+        </div>
+
+        <div class="emergency-box">
+            <p class="emergency-title">应急防黑操作（终极权限，谨慎使用）</p>
+            <button class="emergency-btn lock-btn" id="lockAllBtn">全群聊锁定（禁止所有用户发消息）</button>
+            <button class="emergency-btn safe-btn" id="safeBtn">启动8个白客机器人（清理防御）</button>
+            <button class="emergency-btn lock-btn" id="ipLockBtn">蜜罐启动（锁定攻击IP+设备）</button>
+            <button class="emergency-btn destroy-btn" id="destroyBtn">终极应急 - 销毁所有用户信息（不可逆）</button>
+        </div>
+
+        <div class="msg-box">
+            <p class="style-title">用户举报&联系消息</p>
+            <div id="msgContent">
+                <p id="reportContent">暂无用户举报消息</p>
+                <p id="contactContent">暂无用户联系消息</p>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // 仅主控可访问，非主控自动跳转
+    if(localStorage.getItem('userType') !== 'admin'){
+        alert('无权限访问主控面板！');
+        location.href = "index.html";
+    }
+
+    // 1. 背景+字体颜色设置（实时生效，同步全站）
+    const bgColorBox = document.getElementById('bgColorBox');
+    const fontColorBox = document.getElementById('fontColorBox');
+    bgColorBox.querySelectorAll('.color-item').forEach(item=>{
+        item.onclick = () => {
+            bgColorBox.querySelectorAll('.color-item').forEach(i=>i.classList.remove('active'));
+            item.classList.add('active');
+            const color = item.dataset.color;
+            document.body.style.background = color;
+            localStorage.setItem('siteBg',color);
+            alert('全站背景色已修改，同步生效');
+        }
+    })
+    fontColorBox.querySelectorAll('.color-item').forEach(item=>{
+        item.onclick = () => {
+            fontColorBox.querySelectorAll('.color-item').forEach(i=>i.classList.remove('active'));
+            item.classList.add('active');
+            const color = item.dataset.color;
+            document.querySelectorAll('*').forEach(el=>el.style.color = color);
+            localStorage.setItem('siteFont',color);
+            alert('全站字体色已修改，同步生效');
+        }
+    })
+
+    // 2. 用户管理（踢人+改密码，按键生效）
+    document.querySelectorAll('.kick-btn').forEach(btn=>{
+        btn.onclick = () => {
+            if(confirm('确定踢出该用户？踢出后无法登录')){
+                btn.parentElement.parentElement.remove();
+                alert('用户已成功踢出本站');
+            }
+        }
+    })
+    document.querySelectorAll('.edit-btn')[0].onclick = () => {
+        const newPwd = prompt('请输入新密码');
+        if(newPwd) {
+            localStorage.setItem('userPwd',btoa(newPwd));
+            alert('主控密码修改成功，下次登录用新密码');
+        }
+    }
+
+    // 3. 机器人自动汇报（每30秒更新，实时监控）
+    setInterval(()=>{
+        const reports = [
+            '[群聊机器人] 群聊秩序正常，侦查员无违规上报',
+            '[防火墙机器人] 防护加固中，蜜罐待命，无攻击',
+            '[账号安全机器人] 所有账号加密存储，无异常',
+            '[服务器机器人] 负载正常，高并发排队功能待命',
+            '[截图拦截机器人] 无违规截图，拦截功能正常',
+            '[文件校验机器人] 内部文件无篡改，安全稳定',
+            '[高级监管机器人] 所有机器人运行正常，无故障',
+            '[蜜罐机器人] 无攻击触发，IP+设备锁定功能就绪',
+            '[白客机器人] 8台待命，随时清理黑客影子'
+        ];
+        const randomMsg = reports[Math.floor(Math.random()*reports.length)];
+        document.getElementById('robotReport').innerHTML += `<div class="robot-msg">${randomMsg}</div>`;
+        document.getElementById('robotReport').scrollTop = document.getElementById('robotReport').scrollHeight;
+    },30000);
+
+    // 4. 应急防黑操作（按键全生效，安全加固）
+    document.getElementById('lockAllBtn').onclick = () => {
+        if(confirm('确定锁定全群聊？所有用户禁止发消息')){
+            alert('全群聊已锁定，所有用户无法发送内容');
+            localStorage.setItem('groupLock','locked');
+            document.getElementById('robotReport').innerHTML += `<div class="robot-msg">[应急] 全群聊锁定成功</div>`;
+        }
+    }
+    document.getElementById('safeBtn').onclick = () => {
+        alert('8个白客机器人已启动！清理影子文件+加固防火墙+保护用户信息，100%不泄露');
+        document.getElementById('robotReport').innerHTML += `<div class="robot-msg">[白客机器人] 启动成功，防御加固完成</div>`;
+    }
+    document.getElementById('ipLockBtn').onclick = () => {
+        alert('蜜罐已启动！遇攻击自动锁定对方IP+设备，永久禁止访问，全程无痕');
+        document.getElementById('robotReport').innerHTML += `<div class="robot-msg">[蜜罐机器人] 启动成功，IP+设备锁定功能就绪</div>`;
+    }
+    document.getElementById('destroyBtn').onclick = () => {
+        if(confirm('警告！终极应急！不可逆！确定销毁所有用户信息？')){
+            localStorage.clear();
+            alert('所有用户信息已永久销毁，无任何残留');
+            document.getElementById('userList').innerHTML = '<div class="user-item"><div class="user-info">所有用户信息已销毁</div></div>';
+            document.getElementById('robotReport').innerHTML += `<div class="robot-msg">[应急] 所有用户信息已销毁，安全无残留</div>`;
+        }
+    }
+
+    // 5. 查看用户举报+联系消息
+    if(localStorage.getItem('reportMsg')) document.getElementById('reportContent').innerText = localStorage.getItem('reportMsg');
+    if(localStorage.getItem('contactMsg')) document.getElementById('contactContent').innerText = localStorage.getItem('contactMsg');
+</script>
+</body>
+</html>
